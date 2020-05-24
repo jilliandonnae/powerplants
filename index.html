@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>US Power Plants</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+                body {
+            margin: 0;
+            padding: 0;
+            background: #D8D8D8;
+            font-family: cursive;
+            color: #0D0000;
+        }
+        header {
+            padding: 10px 10%;
+            display: center block;
+            text-align: center;
+            background: #D8D8D8;
+
+        }
+        h2 {
+            display: center block;
+            margin-right: 20px;
+            color: black;
+            text-align: center;
+            background: #D8D8D8;
+            
+        }
+        h3 {
+            display: center block;
+            color: dimgrey;
+            text-align: center;
+            background: #D8D8D8;
+
+        }
+        #map {
+            width: 95%;
+            height: 600px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: dimgrey;
+            text-align: center;
+            background: #D8D8D8;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>Power Plants in the U.S. by fuel source - Geothermal, Biomass, and Solar </h2>
+        <h3>Proportional symbols based on each plant's megawatt capacity.</h3>
+        <h3>Use top right icon to toggle on/off map layers for each plant type.</h3>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>Map authored by Jillian Weitkamp</p>
+        <p>Dept of Geography & Urban Studies, Temple University</p>
+    </footer>
+
+    <script src="power-plants.js"></script>
+    <script>
+
+      var map = L.map('map', {
+          center: [36,-94],
+          zoom: 4,
+      });
+      
+      var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });  
+      
+      tiles.addTo(map);
+        
+
+      var Bio = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: '#4FF949',
+                 weight: 2,
+                 fillColor: '#4FF949',
+                 fillOpacity: .3,
+                 radius: getRadius(feature.properties.capacity_mw) //step4
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Biomass']){
+                  return feature
+              };
+          },
+         
+
+        onEachFeature : function(feature,layer) {
+        layer.on('mouseover', function() {
+        layer.setStyle({
+            fillColor: 'red'
+        });
+    });
+    layer.on('mouseout', function() {
+        layer.setStyle({
+            fillColor: '#4FF949'
+        });
+    });
+
+
+          //step 6  
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"+capacity+" - megawatt capacity"
+              )
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+
+        function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius *2   
+    }
+        
+        var Geo = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'blue',
+                 weight: 2,
+                 fillColor: 'blue',
+                 fillOpacity: .3,
+                 radius: getRadius(feature.properties.capacity_mw) //step4
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Geothermal']){
+                  return feature
+              };
+             // console.log(feature);
+          },
+         
+
+    //step 5
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+        layer.setStyle({
+            fillColor: 'red'
+            });
+        });
+    layer.on('mouseout', function() {
+        layer.setStyle({
+            fillColor: 'blue'
+            });
+        });
+
+
+          //step 6  
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"+capacity+" - megawatt capacity"
+              )
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+//step 4
+        function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius *2   
+    }
+          
+        var Sol = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'orange',
+                 weight: 2,
+                 fillColor: 'orange',
+                 fillOpacity: .3,
+                 radius: getRadius(feature.properties.capacity_mw) //step4
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Solar']){
+                  return feature
+              };
+             // console.log(feature);
+          },
+         
+
+    //step 5
+        onEachFeature : function(feature,layer) {
+        layer.on('mouseover', function() {
+        layer.setStyle({
+            fillColor: 'red'
+        });
+    });
+    layer.on('mouseout', function() {
+        layer.setStyle({
+            fillColor: 'orange'
+        });
+    });
+
+
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+          
+          var popup = ("<b>"+name+"</b><br>"+capacity+" - megawatt capacity"
+              )
+                       layer.bindPopup(popup)
+          }
+          
+      }).addTo(map);
+
+        function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius *2   
+    }
+          
+      var sourcesLayers = {
+        "<b style='color:#55DF07'>Biomass</b>": Bio,
+        "<b style='color:orange'>Solar</b>": Sol,
+        "<b style='color:blue'>Geothermal</b>": Geo
+    }
+
+L.control.layers(null, sourcesLayers, {collapsed: true},{position: 'topright'}).addTo(map);  
+        
+
+        
+    </script>
+    
+</body>
+
+</html>
